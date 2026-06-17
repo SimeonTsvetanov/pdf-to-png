@@ -1,0 +1,32 @@
+<svg width="780" height="220" viewBox="0 0 780 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PDF to PNG">
+  <defs>
+    <linearGradient id="brandF" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="0.55" stop-color="#6d3df0"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="wordF" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Badge (compact) -->
+  <g transform="translate(10 10)">
+    <rect x="0" y="0" width="200" height="200" rx="50" fill="url(#brandF)"/>
+    <g font-family="'Space Grotesk', 'Space Grotesk Variable', 'DejaVu Sans', sans-serif" font-weight="700" text-anchor="middle">
+      <text x="100" y="82" font-size="54" fill="#ffffff" letter-spacing="1">PDF</text>
+      <text x="100" y="176" font-size="54" fill="#ffffff" letter-spacing="1">PNG</text>
+    </g>
+    <g transform="translate(100 100)">
+      <path d="M-13 -10 L0 0 L13 -10" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M-13 2 L0 12 L13 2" fill="none" stroke="#a5f3fc" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- Wordmark -->
+  <g font-family="'Space Grotesk', 'Space Grotesk Variable', 'DejaVu Sans', sans-serif" text-anchor="start">
+    <text x="244" y="128" font-size="86" font-weight="700" fill="url(#wordF)" letter-spacing="-1">PDF</text>
+    <text x="244" y="190" font-size="34" font-weight="500" fill="#8b8b9a" letter-spacing="6">TO&#160;&#160;PNG&#160;&#183;&#160;CONVERTER</text>
+  </g>
+</svg>

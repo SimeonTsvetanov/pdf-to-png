@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://simeontsvetanov.github.io/pdf-to-png/sitemap.xml

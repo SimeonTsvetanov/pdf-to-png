@@ -1,0 +1,44 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0b12"/>
+      <stop offset="1" stop-color="#171326"/>
+    </linearGradient>
+    <linearGradient id="brandO" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="0.55" stop-color="#6d3df0"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="wordO" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#67e8f9"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.2" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#7c3aed" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Badge -->
+  <g transform="translate(96 175)">
+    <rect x="0" y="0" width="280" height="280" rx="70" fill="url(#brandO)"/>
+    <g font-family="'Space Grotesk','DejaVu Sans',sans-serif" font-weight="700" text-anchor="middle" fill="#ffffff">
+      <text x="140" y="115" font-size="76" letter-spacing="2">PDF</text>
+      <text x="140" y="246" font-size="76" letter-spacing="2">PNG</text>
+    </g>
+    <g transform="translate(140 140)">
+      <path d="M-18 -14 L0 0 L18 -14" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M-18 2 L0 16 L18 2" fill="none" stroke="#a5f3fc" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- Text block -->
+  <g font-family="'Space Grotesk','DejaVu Sans',sans-serif">
+    <text x="430" y="285" font-size="92" font-weight="700" fill="url(#wordO)" letter-spacing="-2">PDF → PNG</text>
+    <text x="432" y="350" font-size="34" font-weight="500" fill="#c7c7d1" font-family="'Inter','DejaVu Sans',sans-serif">Convert PDF pages to PNG — free &amp; private</text>
+    <text x="432" y="398" font-size="26" font-weight="400" fill="#8b8b9a" font-family="'Inter','DejaVu Sans',sans-serif">Each page its own PNG · works offline · no signup</text>
+  </g>
+</svg>
