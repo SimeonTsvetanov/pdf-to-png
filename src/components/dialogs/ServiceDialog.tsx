@@ -79,7 +79,7 @@ export function ServiceDialog({
 }): React.ReactNode {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85dvh] max-w-2xl overflow-y-auto">
+      <DialogContent className="max-h-[85dvh] max-w-2xl overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle>Use it as a service</DialogTitle>
           <DialogDescription>
@@ -147,7 +147,7 @@ export function ServiceDialog({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }): React.ReactNode {
   return (
-    <section className="flex flex-col gap-2 rounded-xl bg-surface-2 p-4">
+    <section className="flex min-w-0 flex-col gap-2 rounded-xl bg-surface-2 p-4">
       <h3 className="font-display text-sm font-bold">{title}</h3>
       {children}
     </section>
@@ -160,7 +160,7 @@ function Code({ children }: { children: React.ReactNode }): React.ReactNode {
 
 function Pre({ children }: { children: string }): React.ReactNode {
   return (
-    <pre className="overflow-x-auto rounded-lg bg-background/70 p-3 text-xs leading-relaxed">
+    <pre className="max-w-full whitespace-pre-wrap break-words rounded-lg bg-background/70 p-3 text-xs leading-relaxed">
       <code className="font-mono">{children}</code>
     </pre>
   );
