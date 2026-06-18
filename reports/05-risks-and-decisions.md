@@ -44,4 +44,17 @@
 
 - Do we want PWA **screenshots** (richer install dialog)? — nice-to-have.
 - Add JPG/WEBP output later? — easy extension of the canvas export.
-- Add a real REST API (Phase 2, Cloudflare Workers)? — only if demand appears.
+- ~~Add a real REST API (Phase 2, Cloudflare Workers)?~~ — **DONE (2026-06-18).**
+
+## 5. Update log
+
+- **2026-06-18 — Hosted API built & deployed.** Added `service/` (Hono + **MuPDF
+  WASM** on **Node**), live on **Render** (`pdf-to-png-service-i3sb.onrender.com`),
+  auto-deploy via `render.yaml`. Endpoints: `/info`, `/page`, `/convert`.
+  - **Decision reversed:** **Cloudflare Workers ruled out** — MuPDF's WASM fails to
+    load in the Workers runtime. Use a Node/container host instead.
+  - **Decision:** the API accepts base64 JSON in addition to a raw body, because
+    n8n corrupts raw binary request bodies (caused a `500`). n8n examples + a
+    "Copy n8n nodes" button (`src/lib/n8n-workflow.json`) were added to the app.
+  - **Risk:** Render free tier sleeps after ~15 min idle (~50 s cold start). Mitigate
+    with Koyeb (always-warm, same Dockerfile) or a paid instance if needed.

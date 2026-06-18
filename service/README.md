@@ -63,8 +63,9 @@ host. The easiest free, card-free option is **Render**:
 > **Cloudflare Workers is not supported** — MuPDF’s WASM doesn’t load in the Workers
 > runtime (verified). Use a Node/container host (above).
 
-Once deployed, copy your URL into your n8n nodes (and, optionally, replace the
-`your-service.workers.dev` placeholder in `src/components/dialogs/ServiceDialog.tsx`).
+The current live instance is `https://pdf-to-png-service-i3sb.onrender.com` (already
+wired into the app's "Use as a service" dialog and the examples below). If you deploy
+your own, just swap that URL in your n8n nodes.
 
 ## Use from n8n
 

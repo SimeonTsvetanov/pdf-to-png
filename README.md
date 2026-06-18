@@ -99,8 +99,10 @@ host — e.g. Render or Koyeb, free, no card): `POST /info`, `POST /page`,
 `POST /convert`. **Deploy it once and everyone uses the same URL.** It includes
 ready-to-paste **n8n** examples, including a page-by-page loop that avoids timeouts
 on large PDFs. See [`service/README.md`](./service/README.md). The same docs are in
-the app under **menu → Use as a service**. (Note: Cloudflare Workers is not
-supported — MuPDF’s WASM doesn’t load there.)
+the app under **menu → Use as a service**, which also has a one-click **Copy n8n
+nodes** button. A live instance runs at
+`https://pdf-to-png-service-i3sb.onrender.com`. (Note: Cloudflare Workers is not
+supported — MuPDF’s WASM doesn’t load there; use a Node host.)
 
 ## 🌐 Deployment (GitHub Pages)
 

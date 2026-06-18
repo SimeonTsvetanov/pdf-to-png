@@ -22,15 +22,21 @@ tracking. Files never leave the user's device.
 6. **About / Help / Terms** in a modern menu (hamburger `Sheet` on mobile, dropdown on desktop).
 7. Installable **standalone PWA** (Android, iOS, desktop).
 8. **Install prompt** shown when the app is NOT already installed (with iOS "Add to Home Screen" fallback).
-9. **Client-side "service" mode**: usable from other platforms via URL params + iframe `postMessage` (see `reports/04-microservice-client-side.md`). Scale is an optional param.
+9. **"Service" mode** — two ways to use it from other platforms:
+   - **Client-side** (in a browser): URL params + iframe `postMessage` (see `reports/04`).
+   - **Server-side HTTP API** in `service/` (Hono + MuPDF), for callers with no browser
+     (n8n, Zapier, backends). Deployed once on a Node host; everyone shares the URL.
+     The app's **menu → "Use as a service"** documents it and offers a one-click
+     **Copy n8n nodes** button.
 10. SEO, accessibility, and polished UX/UI.
 11. **Buy Me a Coffee** link + **GitHub** link + email credits in the menu/footer.
 12. Elegant `README.md` and a simple **Terms & Conditions** ("free, use at your own risk, no liability").
 
 ## Tech stack (see `reports/01-stack-and-libraries.md` for full rationale)
 
-- **Vite 6** + **TypeScript** (static `dist/` output)
+- **Vite 8** + **TypeScript** (static `dist/` output)
 - **React 19**
+- **pdfjs-dist** is **lazy-loaded** (dynamic import) so the renderer is a separate chunk
 - **Tailwind CSS v4** (`@tailwindcss/vite`, OKLCH colors)
 - **shadcn/ui** (components copied into `src/components/ui`, fully themeable)
 - **pdfjs-dist** (canvas render → `canvas.toBlob('image/png')`)
@@ -85,6 +91,12 @@ tracking. Files never leave the user's device.
 │  ├─ App.tsx
 │  └─ main.tsx
 ├─ tests/                  ← unit/component (Vitest) + e2e (Playwright)
+├─ service/                ← OPTIONAL server-side HTTP API (Hono + MuPDF, Node/Docker)
+│  ├─ src/                 ← render.ts (mupdf), app.ts (routes), node.ts (entry)
+│  ├─ Dockerfile           ← runs on Render / Koyeb / Fly / any Node host
+│  └─ README.md            ← deploy steps + n8n examples
+├─ render.yaml             ← Render blueprint (one-click deploy of service/)
+├─ src/lib/n8n-workflow.json← ready-to-paste n8n nodes (used by "Copy n8n nodes")
 ├─ .github/workflows/      ← deploy.yml (Pages) + ci.yml (lint/test/build)
 ├─ vite.config.ts          ← base: "/pdf-to-png/", react, tailwind, pwa plugins
 └─ package.json
@@ -100,8 +112,22 @@ tracking. Files never leave the user's device.
 
 ## "Service" mode contract (see `reports/04`)
 
-Query params: `url`, `scale` (0.1–1.0), `page`, `format=png`, `autodownload`, `embed`.
-iframe messaging: `pdf2png:ready` / `:convert` / `:progress` / `:result` / `:error`.
+**Client-side (browser).** Query params: `url`, `scale` (0.1–1.0), `page`,
+`format=png`, `autodownload`, `embed`. iframe messaging: `pdf2png:ready` /
+`:convert` / `:progress` / `:result` / `:error`.
+
+**Server-side HTTP API (`service/`).** Send the PDF as a raw body
+(`application/pdf`) **or** as base64 JSON `{ pdf, scale?, page?, format? }` (base64
+JSON is what n8n should use — raw binary bodies often arrive corrupted there).
+Endpoints: `POST /info` → `{ pages }`; `POST /page?index=&scale=` → one `image/png`;
+`POST /convert?scale=&format=zip|json&page=` → ZIP or JSON.
+Engine is **MuPDF (WASM)** on **Node** — **Cloudflare Workers is NOT supported**
+(MuPDF's WASM doesn't load there); deploy to a Node/container host (Render, Koyeb…).
+
+## Live URLs
+
+- App (GitHub Pages): https://simeontsvetanov.github.io/pdf-to-png/
+- API (Render, Node): https://pdf-to-png-service-i3sb.onrender.com
 
 ## Definition of done
 

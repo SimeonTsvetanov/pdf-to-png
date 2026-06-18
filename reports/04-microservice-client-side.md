@@ -1,9 +1,18 @@
-# Report 04 — "Microservice" Mode (Client-Side) + Future Options
+# Report 04 — "Microservice" Mode (Client-Side) + Hosted API
 
 > Moni wants the converter to be usable **from other platforms** by sending a
 > request and getting back the finished images, optionally passing a scale.
 > GitHub Pages is static, so this report defines a realistic client-side design
-> (the chosen approach) and documents a true-API Phase 2 for completeness.
+> **and** the hosted HTTP API that was subsequently built.
+
+> **UPDATE — 2026-06-18:** The "Phase 2" real API has been **built and deployed**.
+> It lives in `service/` (Hono + **MuPDF WASM**), runs on **Node**, and is live on
+> **Render** at `https://pdf-to-png-service-i3sb.onrender.com`. Important finding:
+> **Cloudflare Workers is NOT viable** — MuPDF's WASM fails to load in the Workers
+> runtime (`createRequire`/path error), so a Node/container host is required. The
+> API accepts the PDF as a raw body *or* as base64 JSON; n8n must use base64 JSON
+> because n8n corrupts raw binary request bodies. Endpoints and n8n examples are in
+> `service/README.md` and in the app under **menu → "Use as a service"**.
 
 ## 1. Why not a classic REST API on Pages
 
@@ -75,20 +84,27 @@ This gives other platforms a clean, documented integration without any backend.
   embed contexts; `postMessage` results are the robust path.
 - **Compute is the client's** — large PDFs use the visitor's CPU/RAM.
 
-## 3. Phase 2 (optional, NOT on GitHub Pages) — a real REST API
+## 3. The hosted REST API — BUILT (`service/`)
 
-If a true `POST file → PNG/ZIP` endpoint is ever required:
+A true `POST PDF → PNG/ZIP` endpoint now exists for server-side callers:
 
-- **Cloudflare Workers** (free tier, generous) running PDF rendering at the edge,
-  or **Vercel / Netlify Functions**. Deployed separately; the PWA calls it via
-  `fetch`.
-- Endpoint sketch: `POST /api/convert` (multipart PDF + `?scale=`) →
-  `200` with `image/png` (single page) or `application/zip` (multi-page).
-- Keep the same parameter names (`scale`, `page`) for consistency with the
-  client-side mode.
+- **Engine:** **MuPDF (WASM)** renders pages to PNG. **Framework:** **Hono**
+  (runtime-agnostic). **Runtime:** **Node** (verified end-to-end).
+- **Hosting:** **Render** free tier via Docker (`service/Dockerfile` +
+  `render.yaml` blueprint, auto-deploy on push). Any Node/container host works
+  (Koyeb, Fly, Railway). Live at `https://pdf-to-png-service-i3sb.onrender.com`.
+- **Endpoints:** `POST /info` → `{ pages }`; `POST /page?index=&scale=` → one
+  `image/png`; `POST /convert?scale=&format=zip|json&page=` → ZIP or JSON. Same
+  parameter names as the client-side mode.
+- **Input:** raw body (`application/pdf`) **or** base64 JSON `{ pdf, scale?, … }`.
+- **Why not Cloudflare Workers:** tested and rejected — MuPDF's WASM does not load
+  in the Workers runtime. A Node/container host is required.
+- **n8n note:** n8n corrupts raw binary request bodies, so callers should send
+  base64 JSON. Ready-to-paste n8n nodes are bundled (`src/lib/n8n-workflow.json`,
+  surfaced via the app's "Copy n8n nodes" button).
 
-This is documented so the door stays open, but it is **out of scope for launch**
-per Moni's decision (client-side only).
+> Free Render instances sleep after ~15 min idle (first request wakes in ~50 s).
+> For always-warm free hosting, Koyeb runs the same Dockerfile.
 
 ## 4. Sources
 

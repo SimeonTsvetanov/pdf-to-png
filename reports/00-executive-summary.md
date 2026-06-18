@@ -55,8 +55,9 @@ It fetches the PDF (CORS permitting), converts it in the browser, and exposes th
 results for download / `postMessage` to a parent window when embedded via `<iframe>`.
 This keeps everything free, static, and private. Full design in **report 04**.
 
-> A future optional upgrade to a real REST endpoint (Cloudflare Workers free tier)
-> is documented as Phase 2 in report 04, should it ever be needed.
+> **UPDATE (2026-06-18):** A real REST API was also **built and deployed** — see
+> `service/` (Hono + MuPDF on **Node**, live on **Render**). Cloudflare Workers was
+> tested and ruled out (MuPDF's WASM won't load there). Details in **report 04**.
 
 ## 4. Final stack (validated, latest stable as of June 2026)
 
@@ -77,7 +78,7 @@ See **report 01** for versions and compatibility evidence.
 - `01-stack-and-libraries.md` — every library, version, and why; compatibility matrix
 - `02-github-pages-and-pwa.md` — deploy, base path, service worker, install prompt, icons
 - `03-seo-ux-ui-typography.md` — SEO, accessibility, UX flows, typography, theming
-- `04-microservice-client-side.md` — the URL/iframe service mode + Phase 2 options
+- `04-microservice-client-side.md` — the URL/iframe service mode + the hosted Node API
 - `05-risks-and-decisions.md` — open risks, trade-offs, and the decision log
 
 ## 6. Sources
