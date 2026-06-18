@@ -1,10 +1,11 @@
-import { Coffee, HelpCircle, Info, Menu as MenuIcon, ScrollText, Download } from "lucide-react";
+import { Coffee, HelpCircle, Info, Menu as MenuIcon, ScrollText, Download, Server } from "lucide-react";
 import { useState, type ComponentType, type ReactNode } from "react";
 import { GitHubIcon } from "@/components/icons";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AboutDialog } from "@/components/dialogs/AboutDialog";
 import { HelpDialog } from "@/components/dialogs/HelpDialog";
+import { ServiceDialog } from "@/components/dialogs/ServiceDialog";
 import { TermsDialog } from "@/components/dialogs/TermsDialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +23,7 @@ import { cn } from "@/lib/utils";
 export const GITHUB_URL = "https://github.com/simeontsvetanov/pdf-to-png";
 export const COFFEE_URL = "https://buymeacoffee.com/simeontsvetanov";
 
-type DialogName = "about" | "help" | "terms" | null;
+type DialogName = "about" | "help" | "terms" | "service" | null;
 
 interface MenuAction {
   readonly id: string;
@@ -44,6 +45,7 @@ export function Header(): ReactNode {
     { id: "about", label: "About", Icon: Info, onSelect: () => setDialog("about") },
     { id: "help", label: "Help", Icon: HelpCircle, onSelect: () => setDialog("help") },
     { id: "terms", label: "Terms & Conditions", Icon: ScrollText, onSelect: () => setDialog("terms") },
+    { id: "service", label: "Use as a service", Icon: Server, onSelect: () => setDialog("service") },
     ...(canInstall
       ? [{ id: "install", label: "Install app", Icon: Download, onSelect: () => void promptInstall() }]
       : []),
@@ -118,6 +120,7 @@ export function Header(): ReactNode {
 
       <AboutDialog open={dialog === "about"} onOpenChange={(o) => setDialog(o ? "about" : null)} />
       <HelpDialog open={dialog === "help"} onOpenChange={(o) => setDialog(o ? "help" : null)} />
+      <ServiceDialog open={dialog === "service"} onOpenChange={(o) => setDialog(o ? "service" : null)} />
       <TermsDialog open={dialog === "terms"} onOpenChange={(o) => setDialog(o ? "terms" : null)} />
     </header>
   );

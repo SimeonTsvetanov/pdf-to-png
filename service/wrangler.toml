@@ -1,0 +1,10 @@
+# Cloudflare Workers config for the PDF -> PNG API.
+# Deploy:  npm install  &&  npx wrangler login  &&  npm run deploy
+name = "pdf-to-png-service"
+main = "src/worker.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# MuPDF ships a WASM module; allow larger upload if needed on the free plan.
+# [limits]
+# cpu_ms = 50

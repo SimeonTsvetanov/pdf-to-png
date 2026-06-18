@@ -9,7 +9,7 @@ import tseslint from "typescript-eslint";
  * strict TypeScript rules, React Hooks rules, and Fast-Refresh safety.
  */
 export default tseslint.config(
-  { ignores: ["dist", "dev-dist", "coverage", "node_modules", "playwright-report"] },
+  { ignores: ["dist", "dev-dist", "coverage", "node_modules", "playwright-report", "service"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
