@@ -1,3 +1,6 @@
+import { Check, Copy, Workflow } from "lucide-react";
+import { useState } from "react";
+import n8nWorkflowRaw from "@/lib/n8n-workflow.json?raw";
 import {
   Dialog,
   DialogContent,
@@ -5,9 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 const APP_URL = "https://simeontsvetanov.github.io/pdf-to-png/";
 const API_URL = "https://pdf-to-png-service-i3sb.onrender.com";
+
+/** Ready-to-paste n8n workflow (Settings + Convert nodes with sticky notes). */
+const N8N_WORKFLOW = n8nWorkflowRaw;
 
 const URL_EXAMPLE = `${APP_URL}?url=https%3A%2F%2Fexample.com%2Ffile.pdf&scale=0.75&autodownload=zip`;
 
@@ -89,7 +96,7 @@ return out;`;
 /**
  * "Use as a service" dialog — how to call the converter from other apps:
  * client-side (URL params / iframe) and via the optional hosted HTTP API,
- * with ready-to-paste n8n examples.
+ * plus a one-click copy of a ready-made n8n workflow.
  */
 export function ServiceDialog({
   open,
@@ -107,6 +114,25 @@ export function ServiceDialog({
             Call the converter from other apps — in the browser, or via a hosted HTTP API.
           </DialogDescription>
         </DialogHeader>
+
+        {/* Highlighted: one-click n8n nodes */}
+        <section className="flex min-w-0 flex-col gap-3 rounded-xl bg-accent p-4 text-accent-foreground">
+          <div className="flex items-center gap-2">
+            <Workflow className="size-5" />
+            <h3 className="font-display text-base font-bold">Ready-made n8n nodes</h3>
+          </div>
+          <p className="text-sm">
+            Copy the nodes below, then paste them onto your n8n canvas (Ctrl/⌘ + V). A{" "}
+            <strong>Settings</strong> + <strong>Convert</strong> pair appears, with notes — just
+            feed it a PDF binary and run.
+          </p>
+          <CopyButton
+            text={N8N_WORKFLOW}
+            label="Copy n8n nodes"
+            copiedLabel="Copied! Paste into n8n"
+            variant="solid"
+          />
+        </section>
 
         <Section title="1 · In the browser — URL parameters">
           <p className="text-sm text-muted-foreground">
@@ -168,6 +194,47 @@ export function ServiceDialog({
   );
 }
 
+/** A button that copies text to the clipboard and confirms with a checkmark. */
+function CopyButton({
+  text,
+  label = "Copy",
+  copiedLabel = "Copied!",
+  variant = "ghost",
+}: {
+  text: string;
+  label?: string;
+  copiedLabel?: string;
+  variant?: "ghost" | "solid";
+}): React.ReactNode {
+  const [copied, setCopied] = useState(false);
+  const copy = async (): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* Clipboard may be blocked; ignore. */
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={() => void copy()}
+      className={cn(
+        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-[box-shadow,transform,background-color] duration-200",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
+        variant === "solid"
+          ? "h-11 px-5 text-sm text-white shadow-[var(--shadow-sm)] [background-image:var(--brand-gradient)] hover:-translate-y-0.5 hover:shadow-[var(--glow-primary)]"
+          : "h-8 px-2.5 text-xs text-muted-foreground hover:bg-surface-2 hover:text-foreground",
+      )}
+      aria-label={label}
+    >
+      {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+      {copied ? copiedLabel : label}
+    </button>
+  );
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }): React.ReactNode {
   return (
     <section className="flex min-w-0 flex-col gap-2 rounded-xl bg-surface-2 p-4">
@@ -183,8 +250,13 @@ function Code({ children }: { children: React.ReactNode }): React.ReactNode {
 
 function Pre({ children }: { children: string }): React.ReactNode {
   return (
-    <pre className="max-w-full whitespace-pre-wrap break-words rounded-lg bg-background/70 p-3 text-xs leading-relaxed">
-      <code className="font-mono">{children}</code>
-    </pre>
+    <div className="relative">
+      <div className="absolute right-1.5 top-1.5">
+        <CopyButton text={children} />
+      </div>
+      <pre className="max-w-full whitespace-pre-wrap break-words rounded-lg bg-background/70 p-3 pr-20 text-xs leading-relaxed">
+        <code className="font-mono">{children}</code>
+      </pre>
+    </div>
   );
 }
