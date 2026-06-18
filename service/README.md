@@ -68,17 +68,26 @@ Once deployed, copy your URL into your n8n nodes (and, optionally, replace the
 
 ## Use from n8n
 
-### Quick way — HTTP Request node
+> **Send the PDF as base64 over JSON.** n8n often corrupts a *raw binary* request
+> body (you’ll see a `500`), but JSON transports the bytes perfectly. The API
+> accepts both; base64 JSON is the reliable choice.
 
-- **Method:** `POST`
-- **URL:** `https://pdf-to-png-service-i3sb.onrender.com/convert?format=json&scale=1`
-- **Body:** *Binary* → your PDF, with header `Content-Type: application/pdf`
-- **Response:** `{ count, pages: [{ index, width, height, dataUrl }] }`
-
-Turn the data URLs into binary files with a small Code node:
+### Quick way — Code node (whole PDF in one call)
 
 ```js
-return items[0].json.pages.map((p) => ({
+// n8n Code node — whole PDF in one call (base64 over JSON).
+const API = "https://pdf-to-png-service-i3sb.onrender.com";
+const prop = Object.keys($binary)[0];                 // the uploaded PDF
+const pdf = await this.helpers.getBinaryDataBuffer(0, prop);
+
+const res = await this.helpers.httpRequest({
+  method: "POST",
+  url: API + "/convert",
+  json: true,
+  body: { pdf: pdf.toString("base64"), format: "json", scale: 1, page: "all" },
+});
+
+return res.pages.map((p) => ({
   json: { page: p.index, width: p.width, height: p.height },
   binary: {
     data: {
@@ -96,51 +105,44 @@ Render **one page per request** inside a loop. Each call is small and fast, so y
 never hit n8n’s execution timeout. Paste this into a **Code node**:
 
 ```js
-// n8n Code node — convert page-by-page to avoid timeouts on big PDFs.
+// n8n Code node — page-by-page (base64 JSON) to avoid timeouts on big PDFs.
 const API = "https://pdf-to-png-service-i3sb.onrender.com";
-const pdf = $binary.data;                 // incoming binary PDF on this item
-const buf = Buffer.from(pdf.data, "base64");
+const prop = Object.keys($binary)[0];
+const buf = await this.helpers.getBinaryDataBuffer(0, prop);
+const b64 = buf.toString("base64");
 
 // 1) how many pages?
 const info = await this.helpers.httpRequest({
-  method: "POST",
-  url: `${API}/info`,
-  body: buf,
-  headers: { "content-type": "application/pdf" },
-  json: true,
+  method: "POST", url: `${API}/info`, json: true, body: { pdf: b64 },
 });
 
-// 2) render each page in turn
+// 2) render one page per request
 const out = [];
 for (let i = 1; i <= info.pages; i++) {
-  const png = await this.helpers.httpRequest({
-    method: "POST",
-    url: `${API}/page?index=${i}&scale=0.8`,
-    body: buf,
-    headers: { "content-type": "application/pdf" },
-    encoding: "arraybuffer", // raw PNG bytes
+  const r = await this.helpers.httpRequest({
+    method: "POST", url: `${API}/convert`, json: true,
+    body: { pdf: b64, format: "json", scale: 0.8, page: String(i) },
   });
-
+  const p = r.pages[0];
   out.push({
     json: { page: i },
     binary: {
       data: await this.helpers.prepareBinaryData(
-        Buffer.from(png),
+        Buffer.from(p.dataUrl.split(",")[1], "base64"),
         `page-${i}.png`,
         "image/png",
       ),
     },
   });
-
   await new Promise((r) => setTimeout(r, 100)); // optional small pause
 }
 
 return out;
 ```
 
-> Prefer n8n’s visual loop? **HTTP Request → `/info`**, then **Loop Over Items** over
-> `1..pages`, an **HTTP Request → `/page?index={{$json.i}}`** inside it, and an
-> optional **Wait** node between iterations.
+> Prefer the **HTTP Request node**? Set Body = JSON with
+> `{ "pdf": "{{ $binary.data0.data }}", "format": "json", "scale": 1 }` — or use the
+> node’s native “Send Binary Data” option (which sends raw bytes correctly).
 
 ## License
 

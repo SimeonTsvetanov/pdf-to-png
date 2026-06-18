@@ -27,41 +27,62 @@ const IFRAME_SNIPPET = `<iframe id="conv" src="${APP_URL}?embed=1" hidden></ifra
   });
 </script>`;
 
-const N8N_SIMPLE = `// n8n: HTTP Request node
-// Method: POST
-// URL:    ${API_URL}/convert?format=json&scale=1
-// Body:   Binary file -> the PDF (Content-Type: application/pdf)
-// Response: { count, pages: [{ index, width, height, dataUrl }] }`;
-
-const N8N_LOOP = `// n8n Code node — convert page-by-page to avoid timeouts on big PDFs.
-// One HTTP request per page keeps each call small and fast.
+const N8N_SIMPLE = `// n8n Code node — whole PDF in one call.
+// Sends the PDF as base64 over JSON, which n8n transports reliably
+// (raw binary bodies often arrive corrupted -> 500).
 const API = "${API_URL}";
-const pdf = $binary.data;                       // incoming binary PDF
-const buf = Buffer.from(pdf.data, "base64");
+const prop = Object.keys($binary)[0];                 // the uploaded PDF
+const pdf = await this.helpers.getBinaryDataBuffer(0, prop);
+
+const res = await this.helpers.httpRequest({
+  method: "POST",
+  url: API + "/convert",
+  json: true,
+  body: { pdf: pdf.toString("base64"), format: "json", scale: 1, page: "all" },
+});
+
+return res.pages.map((p) => ({
+  json: { page: p.index, width: p.width, height: p.height },
+  binary: {
+    data: {
+      data: p.dataUrl.split(",")[1],
+      mimeType: "image/png",
+      fileName: \`page-\${p.index}.png\`,
+    },
+  },
+}));`;
+
+const N8N_LOOP = `// n8n Code node — page-by-page (base64 JSON), avoids timeouts on big PDFs.
+// One request per page keeps each call small and fast.
+const API = "${API_URL}";
+const prop = Object.keys($binary)[0];
+const buf = await this.helpers.getBinaryDataBuffer(0, prop);
+const b64 = buf.toString("base64");
 
 // 1) how many pages?
 const info = await this.helpers.httpRequest({
-  method: "POST", url: API + "/info",
-  body: buf, headers: { "content-type": "application/pdf" },
-  json: true,
+  method: "POST", url: API + "/info", json: true, body: { pdf: b64 },
 });
 
+// 2) render one page per request
 const out = [];
 for (let i = 1; i <= info.pages; i++) {
-  // 2) render one page
-  const png = await this.helpers.httpRequest({
-    method: "POST",
-    url: \`\${API}/page?index=\${i}&scale=0.8\`,
-    body: buf, headers: { "content-type": "application/pdf" },
-    encoding: "arraybuffer",          // get raw bytes
-    returnFullResponse: false,
+  const r = await this.helpers.httpRequest({
+    method: "POST", url: API + "/convert", json: true,
+    body: { pdf: b64, format: "json", scale: 0.8, page: String(i) },
   });
+  const p = r.pages[0];
   out.push({
     json: { page: i },
-    binary: { data: await this.helpers.prepareBinaryData(Buffer.from(png), \`page-\${i}.png\`, "image/png") },
+    binary: {
+      data: await this.helpers.prepareBinaryData(
+        Buffer.from(p.dataUrl.split(",")[1], "base64"),
+        \`page-\${i}.png\`,
+        "image/png",
+      ),
+    },
   });
-  // optional: small pause to be gentle / dodge rate limits
-  await new Promise((r) => setTimeout(r, 100));
+  await new Promise((r) => setTimeout(r, 100)); // optional small pause
 }
 return out;`;
 
@@ -109,9 +130,11 @@ export function ServiceDialog({
             Tools like <strong>n8n</strong>, Zapier or your own backend run on a server with no
             browser, so they can’t use the modes above. For those, deploy the small included API
             (<Code>/service</Code> in the repo — Hono + MuPDF, free on a Node host like Render or
-            Koyeb). Deploy it once and everyone uses the same URL. Endpoints:
+            Koyeb). Deploy it once and everyone uses the same URL. Send the PDF as a raw body
+            (<Code>application/pdf</Code>) <em>or</em> as base64 JSON{" "}
+            <Code>{`{ pdf: "<base64>" }`}</Code>. Endpoints:
           </p>
-          <ul className="ml-4 list-disc text-sm text-muted-foreground">
+          <ul className="ml-4 list-disc break-words text-sm text-muted-foreground">
             <li>
               <Code>POST /info</Code> → <Code>{`{ pages }`}</Code>
             </li>
@@ -124,7 +147,7 @@ export function ServiceDialog({
           </ul>
         </Section>
 
-        <Section title="n8n — quick way (HTTP Request node)">
+        <Section title="n8n — quick way (Code node)">
           <Pre>{N8N_SIMPLE}</Pre>
         </Section>
 
