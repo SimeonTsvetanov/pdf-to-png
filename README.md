@@ -94,11 +94,13 @@ Full contract: [`reports/04-microservice-client-side.md`](./reports/04-microserv
 ### Server-to-server API (n8n, backends)
 
 Server tools have no browser, so they can’t use the modes above. An **optional**,
-free HTTP API lives in [`service/`](./service) (Hono + MuPDF, deploys to Cloudflare
-Workers or any Node host): `POST /info`, `POST /page`, `POST /convert`. It includes
+free HTTP API lives in [`service/`](./service) (Hono + MuPDF, deploys to any Node
+host — e.g. Render or Koyeb, free, no card): `POST /info`, `POST /page`,
+`POST /convert`. **Deploy it once and everyone uses the same URL.** It includes
 ready-to-paste **n8n** examples, including a page-by-page loop that avoids timeouts
 on large PDFs. See [`service/README.md`](./service/README.md). The same docs are in
-the app under **menu → Use as a service**.
+the app under **menu → Use as a service**. (Note: Cloudflare Workers is not
+supported — MuPDF’s WASM doesn’t load there.)
 
 ## 🌐 Deployment (GitHub Pages)
 

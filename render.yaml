@@ -1,0 +1,14 @@
+# Render.com blueprint for the optional PDF -> PNG API (free, no credit card).
+# In Render: New + → Blueprint → pick this repo. It builds service/Dockerfile,
+# gives you a permanent URL, and auto-redeploys on every push to main.
+services:
+  - type: web
+    name: pdf-to-png-service
+    runtime: docker
+    repo: https://github.com/simeontsvetanov/pdf-to-png
+    branch: main
+    rootDir: service
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /
+    autoDeploy: true

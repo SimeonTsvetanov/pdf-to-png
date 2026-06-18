@@ -108,8 +108,8 @@ export function ServiceDialog({
           <p className="text-sm text-muted-foreground">
             Tools like <strong>n8n</strong>, Zapier or your own backend run on a server with no
             browser, so they can’t use the modes above. For those, deploy the small included API
-            (<Code>/service</Code> in the repo — Hono + MuPDF, free on Cloudflare Workers or any Node
-            host). Endpoints:
+            (<Code>/service</Code> in the repo — Hono + MuPDF, free on a Node host like Render or
+            Koyeb). Deploy it once and everyone uses the same URL. Endpoints:
           </p>
           <ul className="ml-4 list-disc text-sm text-muted-foreground">
             <li>
