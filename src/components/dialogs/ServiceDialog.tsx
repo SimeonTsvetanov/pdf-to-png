@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 
 const APP_URL = "https://simeontsvetanov.github.io/pdf-to-png/";
-const API_URL = "https://your-service.workers.dev";
+const API_URL = "https://pdf-to-png-service-i3sb.onrender.com";
 
 const URL_EXAMPLE = `${APP_URL}?url=https%3A%2F%2Fexample.com%2Ffile.pdf&scale=0.75&autodownload=zip`;
 

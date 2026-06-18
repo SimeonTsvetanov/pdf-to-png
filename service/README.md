@@ -71,7 +71,7 @@ Once deployed, copy your URL into your n8n nodes (and, optionally, replace the
 ### Quick way — HTTP Request node
 
 - **Method:** `POST`
-- **URL:** `https://YOUR-SERVICE-URL/convert?format=json&scale=1`
+- **URL:** `https://pdf-to-png-service-i3sb.onrender.com/convert?format=json&scale=1`
 - **Body:** *Binary* → your PDF, with header `Content-Type: application/pdf`
 - **Response:** `{ count, pages: [{ index, width, height, dataUrl }] }`
 
@@ -97,7 +97,7 @@ never hit n8n’s execution timeout. Paste this into a **Code node**:
 
 ```js
 // n8n Code node — convert page-by-page to avoid timeouts on big PDFs.
-const API = "https://YOUR-SERVICE-URL";
+const API = "https://pdf-to-png-service-i3sb.onrender.com";
 const pdf = $binary.data;                 // incoming binary PDF on this item
 const buf = Buffer.from(pdf.data, "base64");
 
